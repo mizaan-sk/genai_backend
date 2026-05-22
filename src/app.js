@@ -15,6 +15,7 @@ const interviewRouter = require("./routes/interview.route");
 // const {generateInterviewReport} = require("./services/ai.service");
 // generateInterviewReport({resume,selfDescription,jobDescription})
 // using all the routes here
+app.set("json spaces", 2); // ADD THIS
 app.use("/api/auth", authrouter);
 app.use("/api/interview/",interviewRouter)
 module.exports = app;
