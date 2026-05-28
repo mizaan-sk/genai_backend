@@ -26,7 +26,7 @@ authrouter.get("/logout",authController.logoutUserController)
 
 
 /**
- * @route POST /api/auth/get-me
+ * @route GET /api/auth/get-me
  * @description get the current logged in user details
  * @access Private
  */
