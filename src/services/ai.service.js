@@ -41,7 +41,7 @@ severity: z.enum(["low", "medium", "high"]).default("medium")    })
     })
   ).min(5),
 
-  title: z.string()
+    title: z.string().describe("The title of the job for which the interview report is generated"),
 })
 
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {

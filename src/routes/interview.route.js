@@ -9,6 +9,19 @@ const interviewRouter = express.Router();
  * @description generate new interview report based on candidate resume, self description and job description
  * @access private
  */
-interviewRouter.post("/",authMiddleware.authUser,upload.single("resume"),interviewController.generateInterviewReportController)
-interviewRouter.post
+interviewRouter.post("/", authMiddleware.authUser, upload.single("resume"), interviewController.generateInterviewReportController)
+
+/**
+ * @route GET  /api/interview/report/:interviewId
+ * @description get interview report by interviewId
+ * @access private
+ */
+interviewRouter.get("/report/:interviewId", authMiddleware.authUser, interviewController.generateInterviewReportByIdController)
+
+/**
+ * @route GET  /api/interview/
+ * @description get all interview reports of logged in user
+ * @access private
+ */
+interviewRouter.get("/interview", authMiddleware.authUser, interviewController.getAllInterviewReportsController)
 module.exports = interviewRouter;
