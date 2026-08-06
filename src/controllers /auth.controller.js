@@ -2,6 +2,7 @@ const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const tokenBlackListModel = require("../models/blacklist.model");
+const { getTokenFromRequest } = require("../middlewares/auth.middleware");
 
 // in production the frontend sits on a different domain, so the cookie has to be
 // cross-site: SameSite=None requires Secure, which requires https
@@ -48,6 +49,7 @@ async function registerUserController(req, res) {
   res.status(201).json({
     //201 is send when new resource is created means creating a new user
     message: "User Registered Succesfully",
+    token, // the frontend sends this back as a Bearer header when the cookie is blocked
     user: {
       id: user._id,
       username: username,
@@ -81,6 +83,7 @@ async function loginUserController(req, res) {
   res.cookie("token", token, cookieOptions);
   res.status(200).json({
     message: "User Loggedin Succesfully",
+    token, // the frontend sends this back as a Bearer header when the cookie is blocked
     user: {
       id: user._id,
       username: user.username,
@@ -96,7 +99,7 @@ async function loginUserController(req, res) {
  */
 
 async function logoutUserController(req, res) {
-  const token = req.cookies.token;
+  const token = getTokenFromRequest(req);
   if(token){
     await tokenBlackListModel.create({token})
   }

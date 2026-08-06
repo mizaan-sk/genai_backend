@@ -1,9 +1,24 @@
 const jwt = require("jsonwebtoken");
 const tokenBlackListModel = require("../models/blacklist.model");
+
+/**
+ * Pull the jwt off the request.
+ * The cookie works when the frontend is same-site with the api; the
+ * Authorization header is what survives when they sit on different domains
+ * (vercel.app -> onrender.com), where browsers drop third-party cookies.
+ */
+function getTokenFromRequest(req) {
+  const header = req.headers.authorization;
+  if (header && header.startsWith("Bearer ")) {
+    return header.slice(7).trim();
+  }
+  return req.cookies?.token;
+}
+
 async function authUser(req, res, next) {
-  const token = req.cookies.token;
+  const token = getTokenFromRequest(req);
   if (!token) {
-    res.status(401).json({
+    return res.status(401).json({
       message: "Token not provided",
     });
   }
@@ -23,4 +38,4 @@ async function authUser(req, res, next) {
     });
   }
 }
-module.exports = { authUser };
+module.exports = { authUser, getTokenFromRequest };
