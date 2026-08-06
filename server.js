@@ -5,6 +5,8 @@ const connectToDb = require("./src/config/database");
 // const genrateInterviewReport = require("./src/services/ai.service");
 connectToDb();
 // genrateInterviewReport({resume,selfDescription,jobDescription});
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+// Render injects PORT — fall back to 3000 for local dev
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

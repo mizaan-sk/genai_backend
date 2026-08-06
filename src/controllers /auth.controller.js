@@ -2,6 +2,17 @@ const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const tokenBlackListModel = require("../models/blacklist.model");
+
+// in production the frontend sits on a different domain, so the cookie has to be
+// cross-site: SameSite=None requires Secure, which requires https
+const isProduction = process.env.NODE_ENV === "production";
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  maxAge: 24 * 60 * 60 * 1000, // 1 day, matches the jwt expiry
+};
+
 /**
  * @name registerUserController
  * @description Register a new user ,expects a username,emailand password
@@ -33,7 +44,7 @@ async function registerUserController(req, res) {
     process.env.JWT_SECRET,
     { expiresIn: "1d" },
   );
-  res.cookie("token", token);
+  res.cookie("token", token, cookieOptions);
   res.status(201).json({
     //201 is send when new resource is created means creating a new user
     message: "User Registered Succesfully",
@@ -67,7 +78,7 @@ async function loginUserController(req, res) {
     process.env.JWT_SECRET,
     { expiresIn: "1d" },
   );
-  res.cookie("token", token);
+  res.cookie("token", token, cookieOptions);
   res.status(200).json({
     message: "User Loggedin Succesfully",
     user: {
@@ -89,7 +100,7 @@ async function logoutUserController(req, res) {
   if(token){
     await tokenBlackListModel.create({token})
   }
-res.clearCookie("token");
+res.clearCookie("token", cookieOptions);
 res.status(200).json({
   message:"User logged out succesfully"
 })

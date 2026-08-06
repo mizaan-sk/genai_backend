@@ -75,7 +75,7 @@ async function getAllInterviewReportsController(req, res) {
 async function generateResumePdfController(req, res) {
     const { interviewReportId } = req.params
 
-    const interviewReport = await interviewReportModel.findById(interviewReportId)
+    const interviewReport = await interviewReportModel.findOne({ _id: interviewReportId, user: req.user.id })
 
     if (!interviewReport) {
         return res.status(404).json({
@@ -85,14 +85,26 @@ async function generateResumePdfController(req, res) {
 
     const { resume, jobDescription, selfDescription } = interviewReport
 
-    const pdfBuffer = await generateResumePdf({ resume, jobDescription, selfDescription })
+    let pdf
+    try {
+        // page.pdf() hands back a Uint8Array; normalise it so Content-Length is right.
+        pdf = Buffer.from(await generateResumePdf({ resume, jobDescription, selfDescription }))
+    } catch (error) {
+        // Without this the express default handler replies with an HTML error page,
+        // which the browser happily saves as a broken "resume.pdf".
+        console.error("Resume PDF generation failed:", error)
+        return res.status(502).json({
+            message: "We couldn't generate your resume right now. Please try again in a moment."
+        })
+    }
 
     res.set({
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=resume_${interviewReportId}.pdf`
+        "Content-Length": pdf.length,
+        "Content-Disposition": `attachment; filename="resume_${interviewReportId}.pdf"`
     })
 
-    res.send(pdfBuffer)
+    res.send(pdf)
 }
 
 module.exports = { generateInterViewReportController, getInterviewReportByIdController, getAllInterviewReportsController, generateResumePdfController }

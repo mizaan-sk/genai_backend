@@ -3,11 +3,19 @@ const cookieparser = require("cookie-parser")
 const cors = require("cors");
 // const {resume,selfDescription,jobDescription} = require("./services/temp")
 const app = express();
+app.set("trust proxy", 1); // behind Render's proxy, so secure cookies are recognised
 app.use(express.json());
 app.use(cookieparser())
+// allowed frontend origins — CLIENT_URL holds the deployed frontend
+const allowedOrigins = [
+    "http://localhost:5173",
+    process.env.CLIENT_URL
+].filter(Boolean)
+
 app.use(cors({
-    origin:"http://localhost:5173",
-    credentials:true
+    origin: allowedOrigins,
+    credentials:true,
+    exposedHeaders:["Content-Disposition"]
 }))
 // require all the routes here
 const authrouter = require("./routes/auth.routes");
