@@ -181,7 +181,17 @@ async function generatePdfFromHtml(htmlContent, margin = {
   left: "15mm",
   right: "15mm"
 }) {
-  const browser = await puppeteer.launch()
+  const browser = await puppeteer.launch({
+    // Render runs the service as root, where chrome refuses to start with its
+    // sandbox on, and gives the container a small /dev/shm that chrome would
+    // otherwise fill and crash against.
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu"
+    ]
+  })
   try {
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" })

@@ -1,1 +1,4 @@
 .env
+
+# Chrome downloaded by puppeteer — hundreds of MB, must never be committed
+.cache
